@@ -140,7 +140,7 @@ func (l *Logger) output(level LogLevel, message string) {
 		return
 	}
 
-	now := time.Now().Format("15:04:05")
+	now := time.Now().Format("2006-01-02 15:04:05")
 	pkg := getCallerPackage()
 	levelStr := levelNames[level]
 

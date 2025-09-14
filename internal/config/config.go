@@ -6,6 +6,7 @@ type Config struct {
 	LLM      LLMConfig      `mapstructure:"llm"`
 	Logger   LoggerConfig   `mapstructure:"logger"`
 	Database DatabaseConfig `mapstructure:"database"`
+	Jwt      JwtConfig      `mapstructure:"jwt"`
 }
 
 // ServerConfig 服务配置
@@ -53,4 +54,10 @@ type DatabaseConfig struct {
 	Name     string `mapstructure:"name"`
 	Charset  string `mapstructure:"charset"`
 	Timezone string `mapstructure:"timezone"`
+}
+
+type JwtConfig struct {
+	Issuer    string `mapstructure:"issuer"`
+	Upstream  string `mapstructure:"upstream"`
+	SharedKey string `mapstructure:"shared_key"`
 }

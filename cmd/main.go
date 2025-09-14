@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"synapse-backend/internal/config"
+	"synapse-backend/internal/utils"
 	"synapse-backend/pkg/logger"
 
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,12 @@ func main() {
 
 	// Logger 会在首次调用时自动初始化，但显式调用更清晰
 	logger.Init()
+
+	// 启动时注册服务
+	if err := utils.RegisterService(); err != nil {
+		logger.Errorf("服务注册失败: %v", err)
+		os.Exit(1)
+	}
 
 	r := gin.New()
 
