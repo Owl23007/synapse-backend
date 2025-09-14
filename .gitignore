@@ -1,0 +1,20 @@
+# Go 编译生成文件
+*.exe
+*.test
+*.out
+
+# Go 依赖目录
+vendor/
+
+# Go 模块缓存
+go.sum
+
+# IDE 和工具相关
+.idea/
+.vscode/
+
+# 日志文件
+*.log
+
+/cmd/dev.yml
+/cmd/prod.yml

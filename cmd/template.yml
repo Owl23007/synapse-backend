@@ -1,0 +1,24 @@
+# Synapse 后端服务配置
+server:
+  port: 9012
+
+llm:
+  providers:
+    - name: "aliyun"
+      api_key: "sk-your-api-key" # 请替换为你的阿里云API Key
+      base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+      models: 
+        - code: "qwen3-max-preview"
+          name: "通义千问3-Max"
+          description: "通义千问3系列Max模型，相较2.5系列整体通用能力有大幅度提升，中英文通用文本理解能力、复杂指令遵循能力、主观开放任务能力、多语言能力、工具调用能力均显著增强；模型知识幻觉更少。"
+          stream: true
+          enabled: true
+      default: "qwen3-max-preview"
+      enabled: true
+
+logger:
+  level: info
+  output_dir: "logs/"
+  settings:
+    - package: "*"
+      level: info
