@@ -2,9 +2,12 @@ package utils
 
 import (
 	"crypto/hmac"
+	"crypto/rsa"
 	"crypto/sha256"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"net/http"
 	"strings"
@@ -152,7 +155,34 @@ func mustJSON(v interface{}) *strings.Reader {
 }
 
 // GetPublicKey 获取已注册的公钥
-func GetPublicKey() (string, error) {
+func GetPublicKey() (*rsa.PublicKey, error) {
+	if !registered {
+		return nil, fmt.Errorf("服务尚未注册")
+	}
+
+	// 解析PEM格式的公钥
+	block, _ := pem.Decode([]byte(publicKey))
+	if block == nil || block.Type != "PUBLIC KEY" {
+		return nil, fmt.Errorf("无效的PEM格式公钥")
+	}
+
+	// 解析公钥
+	pubKey, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("解析公钥失败: %w", err)
+	}
+
+	// 确保是RSA公钥
+	rsaPubKey, ok := pubKey.(*rsa.PublicKey)
+	if !ok {
+		return nil, fmt.Errorf("公钥类型不是RSA")
+	}
+
+	return rsaPubKey, nil
+}
+
+// GetPublicKeyString 获取公钥字符串（向后兼容）
+func GetPublicKeyString() (string, error) {
 	if !registered {
 		return "", fmt.Errorf("服务尚未注册")
 	}

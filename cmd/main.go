@@ -10,6 +10,9 @@ import (
 	"time"
 
 	"synapse-backend/internal/config"
+	"synapse-backend/internal/controller"
+	"synapse-backend/internal/middleware"
+	"synapse-backend/internal/service"
 	"synapse-backend/internal/utils"
 	"synapse-backend/pkg/logger"
 
@@ -36,12 +39,42 @@ func main() {
 
 	r := gin.New()
 
-	r.Use(ginLoggerMiddleware(), gin.Recovery())
+	r.Use(middleware.CORSMiddleware(), ginLoggerMiddleware(), gin.Recovery())
 
 	r.GET("/health", func(c *gin.Context) {
 		logger.Info("连通性检查成功")
 		c.JSON(200, gin.H{"status": "OK"})
 	})
+
+	// 初始化服务
+	assistantService := service.NewAssistantService()
+	assistantController := controller.NewAssistantController(assistantService)
+
+	// 注册路由
+	api := r.Group("/api/v1")
+
+	// 公开端点
+	public := api.Group("/")
+	{
+		// 获取支持的模型列表
+		public.GET("/models", assistantController.GetSupportedModels)
+	}
+
+	// 可选认证端点（有Token时验证，没有时跳过）
+	optional := api.Group("/")
+	optional.Use(middleware.JWTOptionalMiddleware())
+	{
+
+	}
+
+	// 需要认证的端点
+	protected := api.Group("/")
+	protected.Use(middleware.JWTAuthMiddleware())
+	{
+		protected.POST("/chat", assistantController.StartChat)
+		protected.GET("/chat/:taskId", assistantController.StreamChat)
+		protected.DELETE("/chat/:taskId", assistantController.StopChat)
+	}
 
 	// 启动前打印美观横幅
 	printBanner()

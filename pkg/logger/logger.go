@@ -186,7 +186,8 @@ func deleteOldLogs() {
 
 	files, err := os.ReadDir(logDir)
 	if err != nil {
-		Errorf("无法读取日志目录 %s: %v", logDir, err)
+		// 在初始化期间不能使用logger，直接输出到stderr
+		fmt.Fprintf(os.Stderr, "无法读取日志目录 %s: %v\n", logDir, err)
 		return
 	}
 
@@ -199,7 +200,8 @@ func deleteOldLogs() {
 		if !file.IsDir() && logFilePattern.MatchString(file.Name()) {
 			fi, err := file.Info()
 			if err != nil {
-				Errorf("无法获取文件信息 %s: %v", file.Name(), err)
+				// 在初始化期间不能使用logger，直接输出到stderr
+				fmt.Fprintf(os.Stderr, "无法获取文件信息 %s: %v\n", file.Name(), err)
 				continue
 			}
 			logFiles = append(logFiles, struct {
@@ -219,9 +221,11 @@ func deleteOldLogs() {
 		for _, f := range logFiles[50:] {
 			path := filepath.Join(logDir, f.name)
 			if err := os.Remove(path); err != nil {
-				Errorf("无法删除旧日志文件 %s: %v", f.name, err)
+				// 在初始化期间不能使用logger，直接输出到stderr
+				fmt.Fprintf(os.Stderr, "无法删除旧日志文件 %s: %v\n", f.name, err)
 			} else {
-				Debugf("已删除旧日志文件: %s", f.name)
+				// 在初始化期间不能使用logger，直接输出到stderr
+				fmt.Fprintf(os.Stderr, "已删除旧日志文件: %s\n", f.name)
 			}
 		}
 	}
