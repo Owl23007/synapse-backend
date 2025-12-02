@@ -7,6 +7,7 @@ type Config struct {
 	Logger   LoggerConfig   `mapstructure:"logger"`
 	Database DatabaseConfig `mapstructure:"database"`
 	Jwt      JwtConfig      `mapstructure:"jwt"`
+	Nacos    NacosConfig    `mapstructure:"nacos"`
 }
 
 // ServerConfig 服务配置
@@ -60,4 +61,11 @@ type JwtConfig struct {
 	Issuer    string `mapstructure:"issuer"`
 	Upstream  string `mapstructure:"upstream"`
 	SharedKey string `mapstructure:"shared_key"`
+}
+
+// NacosConfig Nacos 配置
+type NacosConfig struct {
+	ServerAddr string `mapstructure:"server-addr"`
+	Username   string `mapstructure:"username"`
+	Password   string `mapstructure:"password"`
 }

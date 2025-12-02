@@ -62,8 +62,8 @@ func register() error {
 	// Step 1: 请求 Challenge
 	registerReq := RegisterRequest{
 		ServiceName: "synapse", // 服务名
-		Endpoint:    fmt.Sprintf("http://localhost:%d", config.AppConfig.Server.Port),
-		PathPrefix:  "/api",
+		Endpoint:    fmt.Sprintf("http://192.168.99.10:%d", config.AppConfig.Server.Port),
+		PathPrefix:  "/api/v1",
 	}
 
 	registerURL := config.AppConfig.Jwt.Upstream + "/service-registry/register"

@@ -76,6 +76,24 @@ func generateTaskID() string {
 
 // IsSupportedModel 检查是否支持该模型
 func (as *AssistantService) IsSupportedModel(model string) bool {
+	// 如果是"default"，则查找配置中的默认模型
+	if model == "default" {
+		for _, provider := range config.AppConfig.LLM.Providers {
+			if !provider.Enabled {
+				continue
+			}
+			// 检查该提供商是否有默认模型且该模型已启用
+			if provider.Default != "" {
+				for _, llmModel := range provider.Models {
+					if llmModel.Enabled && llmModel.Code == provider.Default {
+						return true
+					}
+				}
+			}
+		}
+		return false
+	}
+
 	// 遍历配置中的所有LLM提供商
 	for _, provider := range config.AppConfig.LLM.Providers {
 		if !provider.Enabled {
@@ -113,6 +131,24 @@ func (as *AssistantService) GetSupportedModels() []config.LLMModel {
 
 // getProviderForModel 根据模型获取对应的提供商配置
 func (as *AssistantService) getProviderForModel(model string) (*config.LLMProvider, error) {
+	// 如果是"default"，则查找有默认模型的提供商
+	if model == "default" {
+		for _, provider := range config.AppConfig.LLM.Providers {
+			if !provider.Enabled {
+				continue
+			}
+			// 检查该提供商是否有默认模型且该模型已启用
+			if provider.Default != "" {
+				for _, llmModel := range provider.Models {
+					if llmModel.Enabled && llmModel.Code == provider.Default {
+						return &provider, nil
+					}
+				}
+			}
+		}
+		return nil, errors.New("未找到启用的默认模型")
+	}
+
 	for _, provider := range config.AppConfig.LLM.Providers {
 		if !provider.Enabled {
 			continue
@@ -218,9 +254,15 @@ func (as *AssistantService) processChat(task *ChatTask) {
 
 	logger.Infof("使用LLM提供商: %s, BaseURL=%s", provider.Name, provider.BaseURL)
 
+	// 获取实际的模型名称（如果请求的是"default"，则使用配置中的默认模型）
+	actualModel := task.Model
+	if task.Model == "default" {
+		actualModel = provider.Default
+	}
+
 	// 准备API请求
 	requestBody := ChatCompletionRequest{
-		Model:     task.Model,
+		Model:     actualModel,
 		Messages:  task.Messages,
 		Stream:    true,
 		MaxTokens: 2000,

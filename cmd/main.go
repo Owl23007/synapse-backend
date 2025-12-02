@@ -31,15 +31,15 @@ func main() {
 	// Logger 会在首次调用时自动初始化，但显式调用更清晰
 	logger.Init()
 
-	// 启动时注册服务
-	if err := utils.RegisterService(); err != nil {
-		logger.Errorf("服务注册失败: %v", err)
+	// 启动时注册服务到 Nacos
+	if err := utils.RegisterNacosService(); err != nil {
+		logger.Errorf("Nacos服务注册失败: %v", err)
 		os.Exit(1)
 	}
 
 	r := gin.New()
 
-	r.Use(middleware.CORSMiddleware(), ginLoggerMiddleware(), gin.Recovery())
+	r.Use(ginLoggerMiddleware(), gin.Recovery())
 
 	r.GET("/health", func(c *gin.Context) {
 		logger.Info("连通性检查成功")
@@ -60,16 +60,16 @@ func main() {
 		public.GET("/models", assistantController.GetSupportedModels)
 	}
 
-	// 可选认证端点（有Token时验证，没有时跳过）
+	// 可选认证端点
 	optional := api.Group("/")
-	optional.Use(middleware.JWTOptionalMiddleware())
+	optional.Use(middleware.GatewayOptionalAuthMiddleware())
 	{
 
 	}
 
 	// 需要认证的端点
 	protected := api.Group("/")
-	protected.Use(middleware.JWTAuthMiddleware())
+	protected.Use(middleware.GatewayAuthMiddleware())
 	{
 		protected.POST("/chat", assistantController.StartChat)
 		protected.GET("/chat/:taskId", assistantController.StreamChat)
@@ -119,7 +119,6 @@ func printBanner() {
 	fmt.Println()
 }
 
-// getEnv 辅助函数（避免重复导入）
 func getEnv(key, fallback string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value

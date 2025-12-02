@@ -26,3 +26,13 @@ database:
   name: "your-database-name" # 请替换为你的数据库名称
   charset: "utf8mb4"
   timezone: "Asia/Shanghai"
+
+logger:
+  level: "debug"
+  output_dir: "logs/"
+  output: false
+
+nacos:
+  server-addr: "127.0.0.1:8848"
+  username: "nacos"
+  password: "${your_password_here}" # 替换为实际的Nacos密码

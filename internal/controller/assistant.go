@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 	"synapse-backend/internal/model"
 	"synapse-backend/internal/service"
 	"synapse-backend/internal/utils"
@@ -77,19 +79,31 @@ func (ac *AssistantController) StreamChat(c *gin.Context) {
 		return
 	}
 
+	// 初始化用于收集原始文本的变量
+	var fullResponse strings.Builder
+
 	// 流式发送数据
 	for {
 		select {
 		case data, ok := <-streamChan:
 			if !ok {
-				// 通道关闭，结束响应
+				// 通道关闭，输出原始文本到控制台
+				fmt.Println("流响应原始文本:", fullResponse.String())
+				// 结束响应
 				return
 			}
 			// 发送SSE数据
-			c.Writer.WriteString("data: " + data + "\n\n")
+			_, err := fmt.Fprintf(c.Writer, "%s", data)
+			if err != nil {
+				// 如果写入失败，通常是客户端断开，可以退出
+				return
+			}
 			c.Writer.Flush()
+			// 收集原始文本
+			fullResponse.WriteString(data)
 		case <-c.Request.Context().Done():
-			// 客户端断开连接
+			// 客户端断开连接，输出当前收集的文本
+			fmt.Println("流响应原始文本 (客户端断开):", fullResponse.String())
 			return
 		}
 	}
