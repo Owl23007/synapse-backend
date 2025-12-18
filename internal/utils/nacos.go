@@ -61,13 +61,13 @@ func RegisterNacosService() error {
 	}
 
 	// 获取本机 IP
-	localIP := getLocalIP()
+	localIP := "172.27.16.1"
 	
 	// 注册服务
 	success, err := client.RegisterInstance(vo.RegisterInstanceParam{
 		Ip:          localIP,
 		Port:        uint64(config.AppConfig.Server.Port),
-		ServiceName: "synapse-backend",
+		ServiceName: "synapse",
 		GroupName:   "DEFAULT_GROUP",
 		ClusterName: "DEFAULT",
 		Weight:      10,

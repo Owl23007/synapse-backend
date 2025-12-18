@@ -51,7 +51,7 @@ func main() {
 	assistantController := controller.NewAssistantController(assistantService)
 
 	// 注册路由
-	api := r.Group("/api/v1")
+	api := r.Group("/")
 
 	// 公开端点
 	public := api.Group("/")
