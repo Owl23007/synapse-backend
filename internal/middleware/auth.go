@@ -53,7 +53,7 @@ func GatewayAuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-// GatewayOptionalAuthMiddleware 可选的网关认证（存在则解析，不存在则跳过）
+// GatewayOptionalAuthMiddleware 网关认证
 func GatewayOptionalAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		shortUserID := c.GetHeader("X-User-ID")
@@ -69,7 +69,7 @@ func GatewayOptionalAuthMiddleware() gin.HandlerFunc {
 				c.Set("token_jti", c.GetHeader("X-Token-JTI"))
 				c.Set("token_type", c.GetHeader("X-Token-Type"))
 				
-				logger.Infof("Gateway可选认证成功: user_id=%s", shortUserID)
+				logger.Infof("Gateway认证成功: user_id=%s", shortUserID)
 			}
 		}
 
@@ -88,7 +88,7 @@ func GetUserFromContext(c *gin.Context) (*UserInfo, bool) {
 	role, _ := c.Get("role")
 	scopes, _ := c.Get("scopes")
 
-	// 安全类型断言
+	// 类型断言
 	var uid string
 	if v, ok := userID.(string); ok {
 		uid = v

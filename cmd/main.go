@@ -22,6 +22,7 @@ import (
 func main() {
 	// 设置 Gin 为生产模式
 	gin.SetMode(gin.ReleaseMode)
+
 	// 初始化配置
 	if err := config.InitConfig(); err != nil {
 		logger.Errorf("初始化配置失败: %v", err)

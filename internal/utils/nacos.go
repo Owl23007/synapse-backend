@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"net"
+	"os"
 	"strconv"
 	"strings"
 
@@ -18,18 +19,18 @@ import (
 func RegisterNacosService() error {
 	nacosConfig := config.AppConfig.Nacos
 	if nacosConfig.ServerAddr == "" {
-		return fmt.Errorf("Nacos server address is empty")
+		return fmt.Errorf("Nacos 服务器地址为空")
 	}
 
 	// 解析 ServerAddr (host:port)
 	parts := strings.Split(nacosConfig.ServerAddr, ":")
 	if len(parts) != 2 {
-		return fmt.Errorf("invalid Nacos server address: %s", nacosConfig.ServerAddr)
+		return fmt.Errorf("无效的 Nacos 服务器地址: %s", nacosConfig.ServerAddr)
 	}
 	host := parts[0]
 	port, err := strconv.ParseUint(parts[1], 10, 64)
 	if err != nil {
-		return fmt.Errorf("invalid Nacos server port: %v", err)
+		return fmt.Errorf("无效的 Nacos 服务器端口: %v", err)
 	}
 
 	// 创建 ServerConfig
@@ -57,7 +58,7 @@ func RegisterNacosService() error {
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("create nacos naming client failed: %v", err)
+		return fmt.Errorf("创建 Nacos 命名客户端失败: %v", err)
 	}
 
 	// 获取本机 IP
@@ -78,10 +79,16 @@ func RegisterNacosService() error {
 	})
 
 	if !success || err != nil {
-		return fmt.Errorf("register service to nacos failed: %v", err)
+		// 如果是dev环境或未设置环境变量（默认dev），允许跳过Nacos注册
+		env := os.Getenv("APP_ENV")
+		if env == "" || env == "dev" {
+			logger.Warnf("Dev环境或未设置环境，Nacos服务注册失败，跳过: %v", err)
+			return nil
+		}
+		return fmt.Errorf("注册服务到 Nacos 失败: %v", err)
 	}
 
-	logger.Infof("Service registered to Nacos: %s:%d", localIP, config.AppConfig.Server.Port)
+	logger.Infof("服务注册到 Nacos: %s:%d", localIP, config.AppConfig.Server.Port)
 	return nil
 }
 
