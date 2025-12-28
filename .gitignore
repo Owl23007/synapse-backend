@@ -18,3 +18,7 @@ go.sum
 
 /cmd/dev.yml
 /cmd/prod.yml
+
+test/
+
+docs/

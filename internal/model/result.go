@@ -33,7 +33,11 @@ type ChatCompletionResponse struct {
 	Choices []struct {
 		Index int `json:"index"`
 		Delta struct {
-			Content   string `json:"content"`
+			Content      string `json:"content"`
+			FunctionCall *struct {
+				Name      string `json:"name"`
+				Arguments string `json:"arguments"`
+			} `json:"function_call,omitempty"`
 			ToolCalls []struct {
 				Index    int    `json:"index"`
 				ID       string `json:"id,omitempty"`
@@ -55,9 +59,9 @@ type ChatCompletionResponse struct {
 
 // ToolCall 工具调用结构
 type ToolCall struct {
-	ID       string                 `json:"id"`
-	Type     string                 `json:"type"`
-	Function ToolCallFunction       `json:"function"`
+	ID       string           `json:"id"`
+	Type     string           `json:"type"`
+	Function ToolCallFunction `json:"function"`
 }
 
 // ToolCallFunction 工具调用函数结构
