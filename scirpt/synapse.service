@@ -1,0 +1,16 @@
+[Unit]
+Description=Synapse Backend Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/code/synapse-backend/cmd
+ExecStart=/root/code/synapse-backend/cmd/cmd
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
