@@ -62,8 +62,8 @@ func RegisterNacosService() error {
 	}
 
 	// 获取本机 IP
-	localIP := "172.27.16.1"
-	
+	localIP := getLocalIP()
+
 	// 注册服务
 	success, err := client.RegisterInstance(vo.RegisterInstanceParam{
 		Ip:          localIP,
@@ -93,6 +93,24 @@ func RegisterNacosService() error {
 }
 
 func getLocalIP() string {
+	// 先尝试获取 docker0 网桥的 IP
+	interfaces, err := net.Interfaces()
+	if err == nil {
+		for _, iface := range interfaces {
+			if iface.Name == "docker0" {
+				addrs, err := iface.Addrs()
+				if err == nil {
+					for _, addr := range addrs {
+						if ipnet, ok := addr.(*net.IPNet); ok && ipnet.IP.To4() != nil {
+							return ipnet.IP.String()
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// 如果没有 docker0，找第一个非 loopback 的 IPv4 地址
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		return "127.0.0.1"
